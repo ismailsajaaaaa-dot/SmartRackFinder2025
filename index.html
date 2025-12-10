@@ -1,0 +1,1870 @@
+<!-- START OF index2_edited.html -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Smart Rack Finder — Dinas PMD Tabalong (TTG 2025)</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ---------- RESET & BASE ---------- */
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',system-ui,-apple-system,"Segoe UI",Roboto,Arial;}
+  :root{
+    --bg-dark:#0b0f11; --panel:#0f1416; --accent:#45a29e; --accent-weak:#66fcf1; --muted:#c5c6c7;
+    --glass: rgba(255,255,255,0.04);
+    --neon: rgba(102,252,241,0.12);
+    --success:#2ecc71; --error:#ff6b6b;
+    --transition: 320ms cubic-bezier(.2,.9,.2,1);
+    --soft-dark-1: #111417; --soft-dark-2:#14181b;
+    --light-1: #f7f7f7; --light-2:#ffffff;
+  }
+  html,body{height:100%;background:linear-gradient(180deg,#021016 0%, var(--bg-dark) 100%); color:var(--muted); -webkit-font-smoothing:antialiased;}
+  .container{max-width:1180px;margin:0 auto;padding:18px;}
+  .row{display:flex;gap:12px;align-items:center;}
+  .btn{cursor:pointer;border-radius:10px;padding:8px 12px;border:2px solid var(--accent);background:transparent;color:var(--accent-weak);font-weight:700;transition:all .18s;}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#081214;}
+  .btn.ghost{background:transparent;border-color:rgba(255,255,255,0.06);color:var(--muted);}
+  .small-btn{padding:6px 8px;font-size:13px;border-radius:8px;}
+
+  /* loader */
+  #loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:99999;background:linear-gradient(120deg,#001219,#001e27);opacity:1;transition:opacity .6s;}
+  .spinner{width:72px;height:72px;border-radius:50%;background:conic-gradient(var(--accent) 0 30%, transparent 30% 100%);animation:spin 1.2s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);} }
+
+  /* landing */
+  #landing{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:9999;background:linear-gradient(135deg, rgba(6,11,24,0.92), rgba(1,6,12,0.85)), url('https://images.unsplash.com/photo-1605902711622-cfb43c44367e?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder') center/cover no-repeat;color:white;padding:32px;backdrop-filter: blur(6px);opacity:1;pointer-events:auto;transition:opacity .6s;}
+  #landing.hide{opacity:0;pointer-events:none;}
+  .landing-card{max-width:920px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:16px;padding:28px;text-align:center;box-shadow:0 30px 80px rgba(2,6,12,0.7);border:1px solid rgba(255,255,255,0.03);}
+  .landing-logo{width:82px;height:82px;border-radius:12px;overflow:hidden;margin:0 auto 12px;background:#fff;display:grid;place-items:center;animation:logoPop .7s ease;}
+  @keyframes logoPop{from{transform:scale(.88);opacity:0}to{transform:none;opacity:1}}
+
+  header.site-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:transparent;position:sticky;top:0;z-index:800;backdrop-filter: blur(6px);}
+  header .brand{display:flex;align-items:center;gap:12px;}
+  header .brand h1{font-size:16px;color:var(--accent-weak);margin:0;font-weight:800;}
+  .search-wrap{flex:1;max-width:720px;margin:0 14px;position:relative;}
+  .search-input{width:100%;padding:12px 44px 12px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:var(--muted);outline:none;transition:all .18s;box-shadow:inset 0 -6px 18px rgba(0,0,0,0.25);}
+  .search-actions{position:absolute;right:8px;top:6px;display:flex;gap:6px;align-items:center;}
+  .search-mode{background:transparent;border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:6px 8px;font-size:12px;color:var(--muted);cursor:pointer;}
+
+  .suggestions{position:absolute;top:calc(100% + 8px);left:0;right:0;background:var(--panel);border-radius:10px;padding:8px;display:none;border:1px solid rgba(69,162,158,0.06);box-shadow:0 12px 36px rgba(0,0,0,0.6);z-index:900;}
+  .suggestions.show{display:block;}
+  .suggest-item{padding:8px;border-radius:8px;cursor:pointer;display:flex;gap:10px;align-items:center;}
+  .suggest-item:hover{background:rgba(69,162,158,0.04);}
+
+  nav#filters{display:flex;gap:10px;padding:12px 18px;overflow:auto;border-top:1px solid rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.02);backdrop-filter: blur(2px);}
+  .filter-btn{padding:8px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .18s;}
+  .filter-btn.active{background:linear-gradient(90deg,var(--accent) 0%, var(--accent-weak) 100%);color:#081214;border-color:var(--accent);font-weight:700;box-shadow:0 8px 28px rgba(69,162,158,0.12);}
+
+  main.products{padding:18px;transition:opacity var(--transition);}
+  .products-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;align-items:start;}
+  .product{background:linear-gradient(180deg,#081216, #0e1316);border-radius:12px;padding:12px;text-align:center;border:1px solid rgba(69,162,158,0.04);transition:transform .18s ease,box-shadow .18s;position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:210px;}
+  .product:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(2,8,12,0.6);}
+  .product img{width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px;max-height:120px;}
+  .product h3{color:var(--accent-weak);font-size:14px;margin-bottom:4px;}
+  .product p{color:var(--muted);font-size:13px;margin-bottom:8px;}
+  .loc-btn{padding:8px 10px;border-radius:10px;border:none;background:var(--accent);color:#081214;font-weight:800;cursor:pointer;transition:transform .12s;}
+  .fav-btn{position:absolute;right:12px;top:12px;background:transparent;border:none;font-size:20px;cursor:pointer;color:rgba(255,255,255,0.28);}
+  .fav-btn.active{color:var(--accent-weak);text-shadow:0 6px 18px rgba(69,162,158,0.12);}
+
+  /* LOCATION / CABINET (new multi-cabinet layout) */
+  #location-page{display:none;padding:24px;min-height:60vh;transition:opacity var(--transition),transform var(--transition);}
+  .cabinets-wrap{width:100%;display:flex;flex-direction:column;align-items:center;gap:18px;}
+  .cabinet-row{display:flex;gap:18px;justify-content:center;width:100%;}
+  .cabinet-card{width:220px;background:linear-gradient(180deg,var(--soft-dark-1),var(--soft-dark-2));border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 18px 40px rgba(2,6,8,0.5);display:flex;flex-direction:column;align-items:center;gap:12px;}
+  .cabinet-title{font-weight:800;color:var(--accent-weak);}
+  .cabinet-visual{width:160px;padding:12px;border-radius:10px;background:linear-gradient(180deg,#07181a,#031114);border:1px solid rgba(255,255,255,0.02);display:flex;flex-direction:column;gap:8px;align-items:center;}
+  .shelf-row{display:flex;gap:8px;justify-content:center;width:100%;}
+  .shelf-slot{width:36px;height:36px;border-radius:6px;background:linear-gradient(180deg,#0f1315,#0a0d0f);display:flex;align-items:center;justify-content:center;color:var(--accent-weak);font-weight:800;border:1px solid rgba(69,162,158,0.04);transition:all .28s;position:relative;font-size:12px;}
+  .shelf-slot.active{background:linear-gradient(180deg,#45a29e,#66fcf1);color:#081214;box-shadow:0 0 18px rgba(69,162,158,0.9);transform:translateY(-4px) scale(1.05);z-index:5;}
+  .shelf-slot.dim{opacity:.25;filter:grayscale(80%);}
+  .slot-num{font-size:11px;position:absolute;top:4px;right:6px;color:rgba(255,255,255,0.6);}
+
+  /* small cabinet copies */
+  .mini-cabinets{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:12px;}
+
+  /* FAVORITES page */
+  #favorites-page{display:none;padding:18px;min-height:60vh;transition:opacity var(--transition);}
+  .fav-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;}
+
+  /* ADMIN */
+  #admin-page{display:none;padding:18px;min-height:60vh;}
+  .admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;}
+  .admin-card{background:linear-gradient(180deg,#0f1316,#0b0d0f);padding:12px;border-radius:10px;border:1px solid rgba(69,162,158,0.04);text-align:center;}
+  .admin-card img{width:100%;height:80px;object-fit:cover;border-radius:6px;margin-bottom:6px;}
+
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:2200;padding:18px;}
+  .overlay.show{display:flex;}
+  .modal{background:var(--panel);padding:18px;border-radius:12px;min-width:320px;max-width:920px;border:1px solid rgba(69,162,158,0.06);box-shadow:0 20px 60px rgba(0,0,0,0.6);color:var(--muted);transform-origin:center;animation:modalIn .28s ease;}
+  @keyframes modalIn{from{opacity:0;transform:translateY(8px) scale(.98);}to{opacity:1;transform:none;}}
+
+  .form-row{display:flex;gap:8px;margin-bottom:10px;}
+  .form-row input,.form-row select,.form-row textarea{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--muted);outline:none;}
+
+  .toasts{position:fixed;top:18px;right:18px;z-index:999999;display:flex;flex-direction:column;gap:10px;min-width:240px;}
+  .toast{background:linear-gradient(180deg,#0e1313,#081014);padding:12px 14px;border-radius:10px;border-left:6px solid var(--accent);box-shadow:0 12px 40px rgba(0,0,0,0.6);color:var(--muted);animation:toastIn .28s ease;}
+  .toast.success{border-left-color:var(--success);} .toast.error{border-left-color:var(--error);}
+  @keyframes toastIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:none;}}
+
+  footer.site-foot{padding:18px;text-align:center;border-top:1px solid rgba(255,255,255,0.02);color:var(--muted);margin-top:24px;font-size:13px;}
+  footer .small{opacity:0.9;font-size:13px;}
+
+  /* transitions helpers */
+  .page-enter{opacity:0;transform:translateY(8px) scale(.99);} .page-enter-active{opacity:1;transform:none;transition:all .36s ease;}
+  .page-exit{opacity:1;} .page-exit-active{opacity:0;transform:translateY(-8px);transition:all .28s ease;}
+
+  /* Responsive tweaks */
+  @media (max-width:860px){
+    .products-grid{grid-template-columns:repeat(2,1fr);}
+    .cabinet-card{width:160px;}
+    .shelf-slot{width:28px;height:28px;font-size:11px;}
+    .modal{max-width:92%;}
+  }
+
+  /* Light theme */
+  body.light{background:linear-gradient(180deg,var(--light-1),var(--light-2));color:#0a0a0a;}
+  body.light .product{background:#ffffff;border:1px solid rgba(0,0,0,0.08);color:#0b0b0b;box-shadow:0 12px 36px rgba(10,10,10,0.06);} 
+
+  body.light .search-input{background:#fff;border:1px solid rgba(0,0,0,0.06);color:#0b0b0b;}
+  body.light .shelf-slot{background:#f7fafb;color:#0b0b0b;border:1px solid rgba(0,0,0,0.04);}
+  body.light .shelf-slot.active{box-shadow:0 0 18px rgba(69,162,158,0.12);}
+
+  /* subtle utilities */
+  .muted{color:var(--muted);font-size:13px;}
+  a.under{color:var(--muted);text-decoration:underline;}
+
+  /* settings 3-panel layout inside modal */
+  .settings-panels{display:flex;gap:12px;}
+  .settings-panel{flex:1;background:linear-gradient(180deg,#0b1112,#071014);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);}
+  .panel-title{font-weight:800;color:var(--accent-weak);margin-bottom:8px;}
+  .field-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block;}
+</style>
+
+<style>
+/* ===== PATCH LEMARI STYLE (DENAH MODEL) ===== */
+.cabinet-card{
+  width:100%;
+  max-width:920px;
+}
+.cabinet-visual{
+  background:#2a2a2a;
+  padding:14px;
+}
+.shelf-row{
+  width:100%;
+}
+.shelf-slot{
+  flex:1;
+  justify-content:center;
+  font-size:18px;
+  padding:18px;
+  background:#3a3a3a;
+  color:#66fcf1;
+}
+</style>
+
+
+<!-- ===== RESPONSIVE PATCH (HP / TABLET / LAPTOP) ===== -->
+<style>
+/* container utama */
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* grid rak */
+.rack-container,
+.lemari-container,
+.grid-rak,
+.denah-container {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+/* kartu rak */
+.rack-card,
+.lemari,
+.card-rak {
+  min-height: 120px;
+}
+
+/* header & tombol */
+.top-bar, .header, .toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* tombol */
+button {
+  max-width: 100%;
+}
+
+/* RESPONSIVE BREAKPOINT */
+@media (max-width: 480px) {
+  h1 { font-size: 18px; }
+  h2 { font-size: 16px; }
+  .rack-card, .lemari, .card-rak {
+    min-height: 100px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 900px) {
+  .rack-container,
+  .lemari-container,
+  .grid-rak {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+}
+
+@media (min-width: 901px) {
+  .rack-container,
+  .lemari-container,
+  .grid-rak {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+</style>
+
+</head>
+<body>
+
+<!-- wajib sebelum script utama! -->
+<script type="module">
+  import { initializeApp } 
+    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+
+  import { getDatabase, ref, set, onValue }
+    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDepmxcDloIdVSMrs0LupQW5fMa56faTlA",
+    authDomain: "smartrackfinder2025.firebaseapp.com",
+    databaseURL: "https://smartrackfinder2025-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "smartrackfinder2025",
+    storageBucket: "smartrackfinder2025.firebasestorage.app",
+    messagingSenderId: "624405160078",
+    appId: "1:624405160078:web:3ffebe505fa650397ee9df"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // ==========================================
+  // 🔥 FUNGSI FIREBASE (WAJIB DI DALAM MODULE)
+  // ==========================================
+
+  // LED SAAT CARI LOKASI
+  window.cariLokasi = function(productId, rak){
+    set(ref(db, "racks/rack" + rak + "/LED"), "ON");
+    console.log("LED rak", rak, "MENYALA");
+  };
+
+  // BUZZER ON
+  window.buzzerOn = function(productId, rak){
+    set(ref(db, "racks/rack" + rak + "/BUZZER"), "ON");
+    console.log("BUZZER rak", rak, "MENYALA");
+  };
+
+  // BUZZER OFF
+  window.buzzerOff = function(productId, rak){
+    set(ref(db, "racks/rack" + rak + "/BUZZER"), "OFF");
+    console.log("BUZZER rak", rak, "MATI");
+  };
+
+</script>
+
+<!-- LOADER -->
+<div id="loader"><div class="spinner"></div></div>
+
+<!-- LANDING -->
+<section id="landing">
+  <div class="landing-card">
+    <div class="landing-logo"><img src="https://files.catbox.moe/4vun5i.png" alt="Dinas PMD Tabalong" style="width:78px;height:78px;object-fit:contain;"></div>
+    <div style="font-weight:800;color:var(--accent-weak);">Dinas Pemberdayaan Masyarakat dan Desa Kabupaten Tabalong</div>
+    <div style="font-size:22px;font-weight:800;margin-top:6px;">Lomba Teknologi Tepat Guna 2025</div>
+    <div style="color:var(--muted);margin-top:10px;line-height:1.4;">Smart Rack Finder — Sistem pencarian produk & navigasi rak modern untuk supermarket.</div>
+    <div style="display:flex;gap:12px;justify-content:center;align-items:center;margin-top:14px;">
+      <button id="landing-start" class="btn primary">Mulai</button>
+    </div>
+  </div>
+</section>
+
+<div class="toasts" id="toasts"></div>
+
+<header class="site-header container">
+  <div class="brand row">
+    <img id="logo-top" src="https://files.catbox.moe/4vun5i.png" alt="logo" style="width:44px;height:44px;border-radius:8px;object-fit:contain;">
+    <h1 id="site-title">Smart Rack Finder</h1>
+  </div>
+
+  <div class="search-wrap">
+    <input id="search" class="search-input" type="search" placeholder="Cari produk... (nama, kategori, 'rak 5', 'di bawah 20000')" aria-label="Cari produk">
+    <div class="search-actions">
+      <button id="voice-btn" title="Pencarian suara" class="btn ghost" style="padding:8px;" aria-label="Pencarian suara">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="opacity:.95"><path d="M12 1v11" stroke="#66fcf1" stroke-width="1.6" stroke-linecap="round"/><path d="M8 5a4 4 0 008 0" stroke="#66fcf1" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="suggestions" id="suggestions" role="listbox"></div>
+  </div>
+
+  <div class="row">
+    <div id="modeToggle" class="mode-toggle" title="Toggle dark / light mode" style="display:flex;gap:8px;align-items:center;padding:6px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);cursor:pointer;">
+      <svg id="modeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" style="opacity:.9"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="#66fcf1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span style="font-size:13px;color:var(--muted);">Mode</span>
+    </div>
+    <button id="btn-favorites" class="btn">Favorit</button>
+    <button id="btn-admin-login" class="btn">Login</button>
+  </div>
+</header>
+
+<nav id="filters" class="container" aria-label="Filter utama"></nav>
+
+<!-- PRODUCTS -->
+<main id="products-page" class="products page-transition container">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <div style="font-weight:700;color:var(--accent-weak);">Produk</div>
+    <div style="display:flex;gap:8px;align-items:center;">
+    </div>
+  </div>
+  <div class="products-grid" id="products" aria-live="polite"></div>
+</main>
+
+<!-- FAVORITES -->
+<main id="favorites-page" class="page-transition container" aria-hidden="true">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <div style="font-weight:700;color:var(--accent-weak);">Favorit Anda</div>
+    <div><button id="fav-back" class="btn ghost">Kembali</button></div>
+  </div>
+  <div class="fav-list" id="fav-list"></div>
+</main>
+
+<!-- LOCATION -->
+<section id="location-page" class="page-transition container" aria-hidden="true">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+    <div style="display:flex;gap:12px;align-items:center;">
+      <button id="back-btn" class="btn ghost">← Kembali</button>
+      <div id="prod-info" style="display:flex;align-items:center;gap:12px;">
+        <img id="prod-img" src="" alt="" style="width:84px;height:84px;border-radius:10px;object-fit:cover;border:1px solid rgba(255,255,255,0.04);">
+        <div>
+          <h3 id="prod-name" style="margin:0;color:var(--accent-weak);font-size:18px;">Produk</h3>
+          <div id="prod-price" style="color:var(--muted);font-size:14px;">Rp0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="buzzer-group">
+      <div class="buzzer-card" style="display:flex;gap:10px;align-items:center;">
+        <button id="buzzer-toggle" class="btn primary">Nyalakan Buzzer</button>
+        <button id="buzzer-off" class="btn ghost">Matikan Buzzer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cabinets-wrap" id="cabinet-wrap">
+    <!-- Top row (1 & 2) -->
+    <div class="cabinet-row" id="cab-row-top"></div>
+    <!-- Middle row (3,4,5) -->
+    <div class="cabinet-row" id="cab-row-mid"></div>
+    <!-- Bottom row (6,7,8) -->
+    <div class="cabinet-row" id="cab-row-bot"></div>
+  </div>
+</section>
+
+<!-- ADMIN -->
+<section id="admin-page" class="page-transition container">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input id="admin-search" type="search" placeholder="Cari produk (admin)..." style="padding:10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);">
+      <button id="btn-add-product" class="btn primary">Tambah Produk</button> <button id="btn-admin-favs" class="btn">Favorit (Admin)</button>
+    </div>
+    <div>
+      <!-- Sesuai permintaan: hanya tampilkan Settings di admin -->
+      <button id="btn-settings" class="btn">Settings</button>
+      <!-- btn-site-config dan btn-manage-cats dihapus dari UI -->
+    </div>
+  </div>
+  <div class="admin-grid" id="admin-list"></div>
+</section>
+
+<!-- Kritik & Saran floating button (hanya di halaman awal, disembunyikan di admin saat login) -->
+<div id="feedback-wrap" style="position:fixed;right:18px;bottom:90px;z-index:1200;">
+  <button id="btn-feedback" class="btn primary">Kritik & Saran</button>
+</div>
+
+<!-- Overlay / modal -->
+<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+
+<footer class="site-foot container">
+  <div style="display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:10px;">
+    <img id="logo-bottom" src="https://files.catbox.moe/4vun5i.png" alt="logo" style="width:46px;height:46px;border-radius:8px;object-fit:contain;">
+    <div style="text-align:left;">
+      <div style="font-weight:700;color:var(--accent-weak);" id="footer-title">Smart Rack Finder</div>
+      <div class="small" id="footer-desc">Sistem pencarian produk & navigasi rak — Siap untuk Lomba TTG 2025</div>
+    </div>
+  </div>
+  <div class="small">© <span id="year"></span> Smart Rack Finder — Developer: <a id="dev-name" href="mailto:ismailsjaaaaa@gmail.com" class="under">Muhammad Ismail</a> • <a id="dev-email" href="mailto:ismailsjaaaaa@gmail.com" class="under">ismailsjaaaaa@gmail.com</a> • <a id="dev-wa" href="https://wa.me/6285147530568" class="under">085147530568</a></div>
+</footer>
+
+<script>
+/* ========================= CONFIG & STORAGE KEYS ========================= */
+const LS_KEY = 'sr_produk_v3';
+const LS_AUTH = 'sr_auth_v3';
+const THEME_KEY = 'sr_theme_v2';
+const LS_FAV = 'sr_favs_v1';
+const LS_CONFIG = 'sr_config_v1';
+const LS_SETTINGS = 'sr_settings_v1';
+const LS_SEARCHCOUNTS = 'sr_search_counts_v1';
+const DEFAULT_AUTH = { user: 'adminsrf', pass: '12341234' };
+
+/* DEFAULT SITE CONFIG (editable in admin) */
+const DEFAULT_CONFIG = {
+  siteTitle: 'Smart Rack Finder',
+  footerTitle: 'Smart Rack Finder',
+  footerDesc: 'Sistem pencarian produk & navigasi rak — Siap untuk Lomba TTG 2025',
+  logoTop: 'https://files.catbox.moe/4vun5i.png',
+  logoBottom: 'https://files.catbox.moe/4vun5i.png',
+  developer: { name: 'Muhammad Ismail', email: 'ismailsjaaaaa@gmail.com', wa: '6285147530568' },
+  categories: ['Makanan','Minuman','Kebersihan','Kesehatan','Perlengkapan Rumah','Elektronik','Lainnya']
+};
+
+/* DEFAULT SETTINGS (for callmebot apikey etc) */
+const DEFAULT_SETTINGS = {
+  callmebot_apikey: '1234', // default for testing (change in Settings)
+  welcome_main: 'Dinas Pemberdayaan Masyarakat dan Desa Kabupaten Tabalong',
+  welcome_sub: 'Lomba Teknologi Tepat Guna 2025',
+  welcome_desc: 'Smart Rack Finder — Sistem pencarian produk & navigasi rak modern untuk supermarket.',
+};
+
+/* sample products (seeded if LS empty) */
+const SAMPLE_PRODUCTS = [
+  { id:'p1', name:'Sabun Mandi', price:'Rp10.000', img:'https://files.catbox.moe/w1733u.avif', category:'Kebersihan', cabinet:'1', slot:1 },
+  { id:'p2', name:'Susu Bubuk', price:'Rp25.000', img:'https://files.catbox.moe/r95s5w.jpg', category:'Makanan', cabinet:'1', slot:2 },
+  { id:'p3', name:'Air Mineral', price:'Rp5.000', img:'https://files.catbox.moe/fpqgz4.jpg', category:'Minuman', cabinet:'1', slot:3 },
+  { id:'p4', name:'Keripik Kentang', price:'Rp5.000', img:'https://files.catbox.moe/fqxhm7.jpg', category:'Makanan', cabinet:'1', slot:4 },
+  { id:'p5', name:'Coklat Batangan', price:'Rp7.500', img:'https://files.catbox.moe/xflg7r.jpg', category:'Makanan', cabinet:'1', slot:5 },
+  { id:'p6', name:'Paracetamol', price:'Rp3.000', img:'https://files.catbox.moe/p1awrb.jpg', category:'Kesehatan', cabinet:'1', slot:6 },
+  { id:'p7', name:'Vitamin C', price:'Rp12.000', img:'https://files.catbox.moe/ogfdpk.jpg', category:'Kesehatan', cabinet:'1', slot:7 },
+  { id:'p8', name:'Headset Bluetooth', price:'Rp150.000', img:'https://files.catbox.moe/8vbudm.avif', category:'Elektronik', cabinet:'1', slot:8 },
+];
+
+/* LED & BUZZER pin mapping (Rak 1..8) */
+const BUZZER_PINS = {1:17,2:18,3:19,4:23,5:25,6:26,7:27,8:32};
+const LED_PINS    = {1:16,2:4,3:5,4:13,5:14,6:15,7:21,8:22};
+
+/* session id for this client (unique) */
+const SESSION_ID = 'sess-' + Date.now() + '-' + Math.random().toString(36).slice(2,8);
+
+/* BASE UPDATE URL (update.php on your host) */
+const BASE_UPDATE_URL = 'https://smartrackfinder2025.rf.gd/update.php';
+
+/* ========================= THEME & CONFIG LOAD ========================= */
+const bodyEl = document.body;
+const savedTheme = localStorage.getItem(THEME_KEY);
+if(savedTheme === 'light') bodyEl.classList.add('light');
+
+const siteConfig = JSON.parse(localStorage.getItem(LS_CONFIG) || JSON.stringify(DEFAULT_CONFIG));
+const siteSettings = JSON.parse(localStorage.getItem(LS_SETTINGS) || JSON.stringify(DEFAULT_SETTINGS));
+
+/* apply site config to DOM */
+document.getElementById('site-title').textContent = siteConfig.siteTitle;
+document.getElementById('footer-title').textContent = siteConfig.footerTitle;
+document.getElementById('footer-desc').textContent = siteConfig.footerDesc;
+document.getElementById('logo-top').src = siteConfig.logoTop;
+document.getElementById('logo-bottom').src = siteConfig.logoBottom;
+document.getElementById('dev-name').textContent = siteConfig.developer.name;
+document.getElementById('dev-email').href = 'mailto:' + siteConfig.developer.email;
+document.getElementById('dev-email').textContent = siteConfig.developer.email;
+document.getElementById('dev-wa').href = 'https://wa.me/' + siteConfig.developer.wa;
+document.getElementById('dev-wa').textContent = siteConfig.developer.wa;
+
+/* footer year */
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ========================= STORAGE HELPERS ========================= */
+function loadProducts(){ try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch(e) { return []; } }
+function saveProducts(arr){ localStorage.setItem(LS_KEY, JSON.stringify(arr)); }
+function loadFavs(){ try { return JSON.parse(localStorage.getItem(LS_FAV)) || {}; } catch(e){return {};} }
+function saveFavs(f){ localStorage.setItem(LS_FAV, JSON.stringify(f)); }
+function saveConfig(c){ localStorage.setItem(LS_CONFIG, JSON.stringify(c)); }
+function saveSettings(s){ localStorage.setItem(LS_SETTINGS, JSON.stringify(s)); }
+function loadSearchCounts(){ try { return JSON.parse(localStorage.getItem(LS_SEARCHCOUNTS)) || {}; } catch(e){return {};} }
+function saveSearchCounts(s){ localStorage.setItem(LS_SEARCHCOUNTS, JSON.stringify(s)); }
+
+/* seed initial if missing */
+if (!localStorage.getItem(LS_KEY)) localStorage.setItem(LS_KEY, JSON.stringify(SAMPLE_PRODUCTS));
+if (!localStorage.getItem(LS_AUTH)) localStorage.setItem(LS_AUTH, JSON.stringify(DEFAULT_AUTH));
+if (!localStorage.getItem(LS_CONFIG)) localStorage.setItem(LS_CONFIG, JSON.stringify(DEFAULT_CONFIG));
+if (!localStorage.getItem(LS_SETTINGS)) localStorage.setItem(LS_SETTINGS, JSON.stringify(DEFAULT_SETTINGS));
+
+/* ========================= UI REFS ========================= */
+const productsGrid = document.getElementById('products');
+const filterNav = document.getElementById('filters');
+const searchInput = document.getElementById('search');
+const voiceBtn = document.getElementById('voice-btn');
+const suggestionsEl = document.getElementById('suggestions');
+const productsPage = document.getElementById('products-page');
+const locationPage = document.getElementById('location-page');
+const adminPage = document.getElementById('admin-page');
+const adminList = document.getElementById('admin-list');
+const overlay = document.getElementById('overlay');
+const modal = document.getElementById('modal');
+const btnAdminLogin = document.getElementById('btn-admin-login');
+const btnBack = document.getElementById('back-btn');
+const adminSearch = document.getElementById('admin-search');
+const landing = document.getElementById('landing');
+const loader = document.getElementById('loader');
+const landingStart = document.getElementById('landing-start');
+const buzzerToggle = document.getElementById('buzzer-toggle');
+const btnFavorites = document.getElementById('btn-favorites');
+const favoritesPage = document.getElementById('favorites-page');
+const favList = document.getElementById('fav-list');
+const favBack = document.getElementById('fav-back');
+const btnFeedback = document.getElementById('btn-feedback');
+const feedbackWrap = document.getElementById('feedback-wrap');
+const cabRowTop = document.getElementById('cab-row-top');
+const cabRowMid = document.getElementById('cab-row-mid');
+const cabRowBot = document.getElementById('cab-row-bot');
+
+/* global app state for led/buzzer per rack */
+const rackState = {}; // { rackNum: { led: bool, buzzer: bool, timeoutId: number, session: SESSION_ID } }
+
+/* ========================= TOASTS ========================= */
+const toastsEl = document.getElementById('toasts');
+function showToast(type='info', text='') {
+  const t = document.createElement('div');
+  t.className = 'toast ' + (type === 'success' ? 'success' : (type==='error'?'error':'')); 
+  t.innerHTML = `<div style="font-weight:700;margin-bottom:4px;">${escapeHtml(text)}</div>`;
+  toastsEl.appendChild(t);
+  setTimeout(()=> {
+    t.style.transition = 'all .28s ease';
+    t.style.opacity = '0'; t.style.transform = 'translateX(12px)';
+    setTimeout(()=> t.remove(), 340);
+  }, 3000);
+}
+
+/* ========================= RENDER FILTER NAV (categories dynamic) ========================= */
+function renderFilterNav(){
+  filterNav.innerHTML = '';
+  const allBtn = document.createElement('button'); allBtn.className='filter-btn active'; allBtn.dataset.category='all'; allBtn.textContent='Semua';
+  filterNav.appendChild(allBtn);
+
+  // category-based filters (only)
+  siteConfig.categories.forEach(cat=>{
+    const btn = document.createElement('button'); btn.className='filter-btn'; btn.dataset.category=cat; btn.textContent=cat;
+    filterNav.appendChild(btn);
+  });
+
+  Array.from(filterNav.querySelectorAll('.filter-btn')).forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      Array.from(filterNav.querySelectorAll('.filter-btn')).forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const cat = btn.dataset.category;
+      currentFilter = cat;
+      renderProductsGrid(currentFilter, currentQuery);
+      updateSlotHighlightsForCategory(currentFilter);
+    });
+  });
+}
+renderFilterNav();
+
+/* ========================= RENDER PRODUCTS GRID (with favorites & voice-ready) ========================= */
+function renderProductsGrid(filterCategory='all', q='') {
+  const all = loadProducts();
+  productsGrid.innerHTML = '';
+  const keyword = (q||'').trim().toLowerCase();
+  let list = all.slice();
+
+  // if filterCategory applied (from nav)
+  if(filterCategory && filterCategory !== 'all'){
+    list = list.filter(p => p.category === filterCategory);
+  }
+
+  const mode = 'auto';
+  list = list.filter(p => {
+    if(!keyword) return true;
+
+    const slotNum = productSlotNumber(p);
+
+    if(mode === 'name') return (p.name||'').toLowerCase().includes(keyword);
+    if(mode === 'category') return (p.category||'').toLowerCase().includes(keyword);
+    if(mode === 'rack' || (mode==='auto' && /^rak\s*\d+/i.test(keyword))){
+      const m = keyword.match(/\d+/); if(m) { return Number(slotNum) === Number(m[0]); } return false;
+    }
+    if(mode === 'price' || (mode==='auto' && /(di bawah|<|<=)\s*([0-9\.]+)/i.test(keyword))){
+      const m = keyword.match(/([0-9\.]+)/);
+      if(!m) return true;
+      const thr = Number(m[1].replace(/\./g,'')); const price = Number((p.price||'').replace(/[^0-9]/g,''))||0;
+      return price > 0 && price <= thr;
+    }
+
+    if((p.name||'').toLowerCase().includes(keyword) || (p.category||'').toLowerCase().includes(keyword)) return true;
+    const kdigits = keyword.match(/\d+/);
+    if(kdigits && Number(slotNum) === Number(kdigits[0])) return true;
+    const priceNum = Number(keyword.replace(/[^0-9]/g,'')); if(priceNum && (Number((p.price||'').replace(/[^0-9]/g,'')) <= priceNum)) return true;
+    return false;
+  });
+
+  list.sort((a,b)=> (a.name||'').localeCompare(b.name||''));
+
+const favs = loadFavs();
+
+list.forEach(p => {
+  const div = document.createElement('div');
+  div.className = 'product';
+
+  div.dataset.id = p.id;
+  div.dataset.category = p.category || 'Lainnya';
+  div.dataset.name = p.name || '';
+  div.dataset.price = p.price || '-';
+  div.dataset.img = p.img || '';
+
+  // Slot = rak
+  const slot = productSlotNumber(p);
+  div.dataset.slot = slot;
+
+  const imgHtml = p.img 
+    ? `<img src="${escapeHtml(p.img)}" alt="">` 
+    : `<div style="padding:18px;color:var(--accent);">No Image</div>`;
+
+  const favActive = favs[p.id] ? 'active' : '';
+
+  // ============================
+  // CARD PRODUK + FIREBASE BUTTON
+  // ============================
+  div.innerHTML = `
+    <button class="fav-btn ${favActive}" title="Tambah ke favorit">★</button>
+    ${imgHtml}
+    <div>
+      <h3>${escapeHtml(p.name)}</h3>
+      <p>${escapeHtml(p.price)}</p>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">
+  <button class="loc-btn btn primary" data-slot="${slot}">
+    Cari Lokasi
+  </button>
+
+  <button class="btn ghost btn-buzzer-on" data-slot="${slot}">
+    Buzzer ON
+  </button>
+
+  <button class="btn ghost btn-buzzer-off" data-slot="${slot}">
+    Buzzer OFF
+  </button>
+
+  <button class="btn ghost btn-info" data-id="${escapeHtml(p.id)}">
+    Info
+  </button>
+</div>
+
+    <!-- TOMBOL BUZZER FIREBASE -->
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">
+      <button class="btn success" onclick="buzzerOn('${p.id}', ${slot})">Buzzer ON</button>
+      <button class="btn danger" onclick="buzzerOff('${p.id}', ${slot})">Buzzer OFF</button>
+    </div>
+  `;
+
+productsGrid.appendChild(div);
+});
+
+attachLocButtons();
+attachFavButtons();
+attachInfoButtons();
+
+// =======================
+// ⚡ TOMBOL CARI LOKASI
+// =======================
+document.querySelectorAll('.loc-btn').forEach(btn=>{
+  btn.onclick = () => {
+    const slot = btn.dataset.slot;
+    cariLokasi(null, slot); // panggil firebase
+    showNotif("LED Rak " + slot + " MENYALA", true);
+  };
+});
+
+// =======================
+// ⚡ TOMBOL BUZZER ON
+// =======================
+document.querySelectorAll('.btn-buzzer-on').forEach(btn=>{
+  btn.onclick = () => {
+    const slot = btn.dataset.slot;
+    buzzerOn(null, slot);
+    showNotif("BUZZER Rak " + slot + " MENYALA", true);
+  };
+});
+
+// =======================
+// ⚡ TOMBOL BUZZER OFF
+// =======================
+document.querySelectorAll('.btn-buzzer-off').forEach(btn=>{
+  btn.onclick = () => {
+    const slot = btn.dataset.slot;
+    buzzerOff(null, slot);
+    showNotif("BUZZER Rak " + slot + " MATI", false);
+  };
+});
+
+/* helper: product logical slot number (1..8) */
+function productSlotNumber(p){
+  if(p.slot) return Number(p.slot);
+  if(typeof p.rack !== 'undefined' && typeof p.shelf !== 'undefined'){
+    const s = Number(p.shelf);
+    const r = Number(p.rack);
+    if(s === 2) return (r === 0 ? 1 : 2);
+    if(s === 1) return 3 + r;
+    if(s === 0) return 6 + r;
+  }
+  return 1;
+}
+
+/* attach info */
+function attachInfoButtons(){
+  Array.from(document.querySelectorAll('.btn-info')).forEach(b=>{
+    b.onclick = (e)=>{
+      const id = e.currentTarget.dataset.id;
+      const p = loadProducts().find(x=>x.id===id);
+      if(!p) return;
+      showOverlay(`
+        <button class="close-x" onclick="closeOverlay()">×</button>
+        <h3 style="color:var(--accent-weak);">${escapeHtml(p.name)}</h3>
+        <div style="color:var(--muted);margin-bottom:8px;">Kategori: <b>${escapeHtml(p.category)}</b><br>Harga: <b>${escapeHtml(p.price)}</b><br>Lokasi (Rak): <b>${escapeHtml(String(productSlotNumber(p)))}</b></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button class="btn ghost" onclick="closeOverlay()">Tutup</button>
+        </div>
+      `);
+    };
+  });
+}
+
+/* favorites */
+function attachFavButtons(){
+  const favs = loadFavs();
+  Array.from(document.querySelectorAll('.fav-btn')).forEach(btn=>{
+    btn.onclick = (e)=>{
+      e.stopPropagation();
+      const productDiv = btn.closest('.product');
+      const id = productDiv.dataset.id;
+      const f = loadFavs();
+      if(f[id]) { delete f[id]; btn.classList.remove('active'); showToast('success','Dihapus dari favorit'); }
+      else { f[id] = true; btn.classList.add('active'); showToast('success','Ditambahkan ke favorit'); }
+      saveFavs(f);
+      renderFavoritesListIfOpen();
+    };
+  });
+}
+
+/* ========================= ATTACH LOCATION LOGIC (toggle led & buzzer) ========================= */
+function attachLocButtons() {
+  const locButtons = Array.from(document.querySelectorAll('.loc-btn'));
+  locButtons.forEach(btn => {
+    btn.removeEventListener('click', locBtnHandler);
+    btn.addEventListener('click', locBtnHandler);
+  });
+}
+
+function locBtnHandler(e){
+  const btn = e.currentTarget;
+  const productDiv = btn.closest('.product');
+  const name = productDiv.dataset.name;
+  const price = productDiv.dataset.price;
+  const img = productDiv.dataset.img;
+  const slot = Number(productDiv.dataset.slot || 1);
+
+  // show location page with transitions
+  showPage(locationPage);
+  document.getElementById('prod-name').textContent = name || 'Produk';
+  document.getElementById('prod-price').textContent = price || '-';
+  document.getElementById('prod-img').src = img || '';
+
+  // highlight corresponding cabinet slot visual
+  highlightCabinetSlot(slot);
+
+  // toggle LED for this rack (turn on) - with auto off
+  toggleLed(slot, true, true);
+
+  // store currently selected rack for buzzer toggling
+  locationPage.dataset.currentRack = slot;
+  updateBuzzerToggleUI(slot);
+
+  // increase search counter for this product (favoriting heuristic)
+  registerProductSearch(productDiv.dataset.id);
+}
+
+/* highlightCabinetSlot: find the cabinet card and activate its slot */
+function highlightCabinetSlot(slotNum){
+  Array.from(document.querySelectorAll('.shelf-slot')).forEach(s => s.classList.remove('active','dim'));
+  const target = document.querySelector(`.shelf-slot[data-slot="${slotNum}"]`);
+  if(target){
+    document.querySelectorAll('.shelf-slot').forEach(s=> { if(s !== target) s.classList.add('dim'); });
+    target.classList.add('active');
+    target.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
+  }
+}
+
+/* shelf slot click -> show first product in that slot */
+function attachShelfSlotListeners(){
+  Array.from(document.querySelectorAll('.shelf-slot')).forEach(slot => {
+    slot.removeEventListener('click', slot._listener || (()=>{}));
+    const listener = ()=>{
+      const slotNum = Number(slot.dataset.slot);
+      const found = loadProducts().filter(p => Number(productSlotNumber(p)) === slotNum);
+      Array.from(document.querySelectorAll('.shelf-slot')).forEach(s=> s.classList.remove('active'));
+      slot.classList.add('active');
+      if(found.length){
+        const p = found[0];
+        document.getElementById('prod-name').textContent = p.name;
+        document.getElementById('prod-price').textContent = p.price;
+        document.getElementById('prod-img').src = p.img || '';
+        // toggle led on that slot
+        toggleLed(slotNum,true,true);
+        locationPage.dataset.currentRack = slotNum;
+        updateBuzzerToggleUI(slotNum);
+      } else {
+        document.getElementById('prod-name').textContent = 'Tidak ada produk di rak ini';
+        document.getElementById('prod-price').textContent = '-';
+        document.getElementById('prod-img').src = '';
+      }
+    };
+    slot.addEventListener('click', listener);
+    slot._listener = listener;
+  });
+}
+
+/* back button: hide location and ensure everything off */
+btnBack.addEventListener('click', ()=>{
+  // turn everything off (leds & buzzers) started by this session
+  turnAllOff();
+  hideAllPages();
+  showPage(productsPage);
+});
+
+/* show/hide page utilities with transitions */
+function showPage(el){
+  [productsPage, locationPage, adminPage, favoritesPage].forEach(p=> p.style.display = 'none');
+  el.style.display = 'block';
+  el.classList.add('page-enter'); setTimeout(()=> el.classList.add('page-enter-active'),10);
+}
+function hideAllPages(){
+  showPage(productsPage);
+  Array.from(document.querySelectorAll('.shelf-slot')).forEach(s=> s.classList.remove('active','dim'));
+  delete locationPage.dataset.currentRack;
+}
+
+/* ========================= LED & BUZZER CONTROL (send to update.php) ========================= */
+function sendCommand(params){
+  const qs = new URLSearchParams(params).toString();
+  const url = BASE_UPDATE_URL + '?' + qs;
+  return fetch(url).then(r=>{
+    if(!r.ok) throw new Error('Network');
+    return r.text();
+  });
+}
+
+function toggleLed(rackNum, turnOn=true, withAutoOff=false){
+  if(!rackNum) return;
+  rackState[rackNum] = rackState[rackNum] || {};
+  const already = rackState[rackNum].led || false;
+  if(already === turnOn && turnOn) {
+    return;
+  }
+  const action = turnOn ? 'ON' : 'OFF';
+  sendCommand({led: action, rack: rackNum, session: SESSION_ID, ts: Date.now(), pin: LED_PINS[rackNum] }).then(()=> {
+    rackState[rackNum].led = turnOn;
+    rackState[rackNum].session = SESSION_ID;
+    showToast('success', `LED Rak ${rackNum} ${turnOn ? 'MENYALA' : 'MATI' }`);
+  }).catch(()=> showToast('error', 'Gagal mengirim perintah LED'));
+
+  if(withAutoOff){
+    clearAutoOff(rackNum);
+    rackState[rackNum].timeoutId = setTimeout(()=> {
+      toggleLed(rackNum,false,false);
+    }, 60 * 1000);
+  }
+}
+
+function clearAutoOff(rackNum){
+  if(rackState[rackNum] && rackState[rackNum].timeoutId){
+    clearTimeout(rackState[rackNum].timeoutId);
+    delete rackState[rackNum].timeoutId;
+  }
+}
+
+function toggleBuzzer(rackNum, turnOn=true){
+  if(!rackNum) return;
+  const action = turnOn ? 'ON' : 'OFF';
+  sendCommand({buzzer: action, rack: rackNum, session: SESSION_ID, ts: Date.now(), pin: BUZZER_PINS[rackNum]}).then(()=> {
+    rackState[rackNum] = rackState[rackNum] || {};
+    rackState[rackNum].buzzer = turnOn;
+    rackState[rackNum].session = SESSION_ID;
+    showToast('success', `Buzzer Rak ${rackNum} ${turnOn ? 'MENYALA' : 'MATI' }`);
+    updateBuzzerToggleUI(rackNum);
+  }).catch(()=> showToast('error', 'Gagal mengirim perintah Buzzer'));
+}
+
+/* buzzer toggle: only toggles the current selected rack */
+buzzerToggle.addEventListener('click', ()=>{
+  const cur = Number(locationPage.dataset.currentRack || 0);
+  if(!cur) { showToast('error','Pilih produk / rak dulu'); return; }
+  const state = rackState[cur] && rackState[cur].buzzer;
+  toggleBuzzer(cur, !state);
+});
+
+function updateBuzzerToggleUI(rackNum){
+  const state = rackState[rackNum] && rackState[rackNum].buzzer;
+  buzzerToggle.textContent = state ? 'Matikan Buzzer' : 'Nyalakan Buzzer';
+}
+
+/* turn all off helper */
+function turnAllOff(){
+  Object.keys(rackState).forEach(k=>{
+    const num = Number(k);
+    if(rackState[k].led) toggleLed(num,false,false);
+    if(rackState[k].buzzer) toggleBuzzer(num,false);
+  });
+}
+
+/* auto-turnoff when tab hidden or beforeunload */
+document.addEventListener('visibilitychange', ()=> {
+  if(document.hidden){
+    Object.keys(rackState).forEach(k=>{
+      if(rackState[k].led) toggleLed(k,false,false);
+      if(rackState[k].buzzer) toggleBuzzer(k,false);
+    });
+  }
+});
+window.addEventListener('beforeunload', ()=> {
+  Object.keys(rackState).forEach(k=>{
+    if(rackState[k].led) navigator.sendBeacon(BASE_UPDATE_URL + '?' + new URLSearchParams({led:'OFF',rack:k,session:SESSION_ID, ts:Date.now(), pin: LED_PINS[k]}));
+    if(rackState[k].buzzer) navigator.sendBeacon(BASE_UPDATE_URL + '?' + new URLSearchParams({buzzer:'OFF',rack:k,session:SESSION_ID, ts:Date.now(), pin: BUZZER_PINS[k]}));
+  });
+});
+
+/* ========================= ADMIN / LOGIN + password eye + site config + validation ========================= */
+function showOverlay(html){ modal.innerHTML = html; overlay.classList.add('show'); }
+function closeOverlay(){ overlay.classList.remove('show'); modal.innerHTML=''; }
+
+function showLoginModal(msg=''){
+  const html = `
+    <button class="close-x" onclick="closeOverlay()">×</button>
+    <h3 style="color:var(--accent-weak);margin-bottom:6px;">Login Admin</h3>
+    <div style="color:var(--muted);margin-bottom:10px;">Masukkan username & password</div>
+    <div class="form-row"><input id="login-user" placeholder="Username" value=""></div>
+    <div class="form-row" style="align-items:center;"><input id="login-pass" placeholder="Password" type="password"><button id="pw-eye" class="btn ghost" title="Toggle show">👁</button></div>
+    <div id="login-msg" style="color:${msg?'var(--error)':'transparent'};margin-bottom:8px;">${escapeHtml(msg)}</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn ghost" id="login-cancel">Batal</button>
+      <button class="btn primary" id="login-do">Masuk</button>
+    </div>
+    <div style="margin-top:10px;color:var(--muted);font-size:13px;">
+      <a href="#" id="link-forgot" style="color:var(--muted);text-decoration:underline;">Lupa Password?</a>
+    </div>
+  `;
+  showOverlay(html);
+  document.getElementById('login-cancel').addEventListener('click', closeOverlay);
+  document.getElementById('pw-eye').addEventListener('click', ()=>{
+    const p = document.getElementById('login-pass');
+    p.type = p.type === 'password' ? 'text' : 'password';
+  });
+  document.getElementById('login-do').addEventListener('click', ()=>{
+    const u = document.getElementById('login-user').value.trim();
+    const p = document.getElementById('login-pass').value.trim();
+    const auth = JSON.parse(localStorage.getItem(LS_AUTH) || JSON.stringify(DEFAULT_AUTH));
+    if(u === auth.user && p === auth.pass){
+      closeOverlay();
+      openAdminPage();
+      // change header login -> logout
+      setHeaderLoggedIn(true);
+      showToast('success','Login sukses — Selamat datang!');
+    } else { document.getElementById('login-msg').textContent = 'Username atau password salah'; showToast('error','Login gagal'); }
+  });
+  document.getElementById('link-forgot').addEventListener('click', (ev)=>{ ev.preventDefault(); closeOverlay(); showForgotModal(); });
+}
+btnAdminLogin.addEventListener('click', ()=> {
+  const isLogged = isLoggedIn();
+  if(isLogged) { doLogout(); }
+  else showLoginModal();
+});
+
+/* helper login state (simple localstorage flag) */
+function isLoggedIn(){ return !!localStorage.getItem('sr_logged_in'); }
+function setLoggedIn(val){ if(val) localStorage.setItem('sr_logged_in','1'); else localStorage.removeItem('sr_logged_in'); }
+function setHeaderLoggedIn(logged){
+  const btn = document.getElementById('btn-admin-login');
+  if(logged){
+    btn.textContent = 'Logout';
+    btn.classList.remove('btn');
+    btn.classList.add('btn','ghost');
+    setLoggedIn(true);
+  } else {
+    btn.textContent = 'Login';
+    setLoggedIn(false);
+  }
+}
+
+/* init header text according to login state */
+if(isLoggedIn()) setHeaderLoggedIn(true);
+
+/* ========================= FORGOT / CHANGE PASSWORD (ID required) ========================= */
+/* NOTE:
+   - Reset hanya jika ID verifikasi benar (10122025)
+   - Ubah sandi (username + password baru) hanya bisa dibuka jika ID verifikasi benar
+*/
+
+function showForgotModal(){
+  const html = `
+    <button class="close-x" onclick="closeOverlay()">×</button>
+    <h3 style="color:var(--accent-weak);">Lupa Password / Reset</h3>
+    <div style="color:var(--muted);margin-bottom:10px;">Masukkan <b>ID verifikasi</b> untuk melakukan Reset atau Ubah Sandi.</div>
+    <div class="form-row"><input id="forgot-id" placeholder="ID verifikasi (untuk Reset / Ubah)"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-bottom:10px;">
+      <button class="btn ghost" id="forgot-cancel">Batal</button>
+      <button class="btn" id="btn-change-pass">Ubah Sandi</button>
+      <button class="btn primary" id="btn-reset-sandi">Reset Sandi</button>
+    </div>
+    <div style="color:var(--muted);font-size:13px;">Catatan: ID verifikasi default: <b>10122025</b></div>
+  `;
+  showOverlay(html);
+  document.getElementById('forgot-cancel').addEventListener('click', closeOverlay);
+
+  // RESET: hanya jika ID sama dengan kode verifikasi
+  document.getElementById('btn-reset-sandi').addEventListener('click', ()=> {
+    const id = document.getElementById('forgot-id').value.trim();
+    if(id === '10122025'){
+      localStorage.setItem(LS_AUTH, JSON.stringify(DEFAULT_AUTH));
+      closeOverlay();
+      showToast('success','Akun telah di-reset ke default. Username/Password: adminsrf/12341234');
+    } else {
+      showToast('error','ID verifikasi salah');
+    }
+  });
+
+  // UBAH SANDI: cek ID dulu, kalau benar -> buka modal ubah sandi
+  document.getElementById('btn-change-pass').addEventListener('click', ()=> {
+    const id = document.getElementById('forgot-id').value.trim();
+    if(id === '10122025'){
+      closeOverlay();
+      // buka modal ubah sandi (tanpa memerlukan password lama)
+      showChangePasswordModal();
+    } else {
+      showToast('error','ID verifikasi salah');
+    }
+  });
+}
+
+/* Change password modal (username + new password) */
+function showChangePasswordModal(){
+  const html = `
+    <button class="close-x" onclick="closeOverlay()">×</button>
+    <h3 style="color:var(--accent-weak);">Ubah Password Admin</h3>
+    <div style="color:var(--muted);margin-bottom:10px;">Masukkan <b>username</b> dan <b>password baru</b>. Password lama tidak diperlukan — tetapi hanya bisa disimpan jika username cocok.</div>
+    <div class="form-row"><input id="chg-user" placeholder="Username"></div>
+    <div class="form-row"><input id="chg-new" placeholder="Password Baru" type="password"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn ghost" id="chg-cancel">Batal</button>
+      <button class="btn primary" id="chg-save">Simpan</button>
+    </div>
+  `;
+  showOverlay(html);
+  document.getElementById('chg-cancel').addEventListener('click', closeOverlay);
+  document.getElementById('chg-save').addEventListener('click', ()=> {
+    const u = document.getElementById('chg-user').value.trim();
+    const newp = document.getElementById('chg-new').value.trim();
+    const auth = JSON.parse(localStorage.getItem(LS_AUTH) || JSON.stringify(DEFAULT_AUTH));
+    if(!u || u !== auth.user){
+      showToast('error','Username tidak cocok');
+      return;
+    }
+    if(!newp || newp.length < 4){
+      showToast('error','Password baru minimal 4 karakter');
+      return;
+    }
+    auth.pass = newp;
+    localStorage.setItem(LS_AUTH, JSON.stringify(auth));
+    closeOverlay();
+    showToast('success','Password berhasil diubah.');
+  });
+}
+
+
+/* logout function */
+function doLogout(){
+  setHeaderLoggedIn(false);
+  setLoggedIn(false);
+  showToast('success','Logout berhasil.');
+  goHome();
+}
+
+/* open admin page
+   - HIDE filters & feedback (user requested categories & kritik/saran hanya di halaman awal)
+   - admin UI only contains Settings (we removed Site Config & Kategori from markup)
+*/
+function openAdminPage(){ 
+  productsPage.style.display='none'; 
+  adminPage.style.display='block'; 
+  locationPage.style.display='none'; 
+  favoritesPage.style.display='none'; 
+  renderAdminList();
+  // hide category filters and feedback button while in admin
+  if(filterNav) filterNav.style.display = 'none';
+  if(feedbackWrap) feedbackWrap.style.display = 'none';
+}
+
+/* admin search live */
+adminSearch.addEventListener('input', ()=> renderAdminList(adminSearch.value || ''));
+
+/* ========================= MODAL: Add & Edit Product (with labels) ========================= */
+/* (kept unchanged except for where requested) */
+
+function openAddModal(){
+  const cats = siteConfig.categories.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+  const html = `
+    <button class="close-x" onclick="closeOverlay()">×</button>
+    <h3 style="color:var(--accent-weak);">Tambah Produk Baru</h3>
+    <div style="color:var(--muted);margin-bottom:8px;">Isi detail produk. ID kosong = auto. Rak: 1..8</div>
+    <div class="form-row"><div style="min-width:120px;"><label class="field-label">Nama produk</label></div><input id="f-name" placeholder="Nama produk (contoh: Susu Bubuk)"></div>
+    <div class="form-row"><div style="min-width:120px;"><label class="field-label">Harga (angka)</label></div><input id="f-price" placeholder="Harga (angka saja, contoh: 10000)"><div style="font-size:12px;color:var(--muted);padding:6px;">Masukkan angka tanpa titik</div></div>
+    <div class="form-row"><div style="min-width:120px;"><label class="field-label">URL gambar</label></div><input id="f-img" placeholder="URL gambar (mis. link catbox)"><div style="font-size:12px;color:var(--muted);">Jika tidak tahu, kunjungi <a href="https://catbox.moe/" target="_blank">Catbox</a></div></div>
+    <div class="form-row"><div style="min-width:120px;"><label class="field-label">Kategori</label></div><select id="f-category">${cats}</select><input id="f-id" placeholder="ID produk (kosong = auto)"></div>
+    <div class="form-row"><div style="min-width:120px;"><label class="field-label">Lemari</label></div><input id="f-cabinet" placeholder="Lemari (1)" value="1" disabled><div style="min-width:120px;"><label class="field-label">Rak (1..8)</label></div><input id="f-rak" placeholder="Rak (1..8)"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn ghost" id="add-cancel">Batal</button>
+      <button class="btn primary" id="add-save">Simpan</button>
+    </div>`;
+  showOverlay(html);
+  document.getElementById('add-cancel').addEventListener('click', closeOverlay);
+  document.getElementById('add-save').addEventListener('click', ()=>{
+    const name = document.getElementById('f-name').value.trim();
+    const priceRaw = document.getElementById('f-price').value.trim();
+    const img = document.getElementById('f-img').value.trim();
+    const category = document.getElementById('f-category').value;
+    const slot = document.getElementById('f-rak').value.trim();
+    if(!name) { showToast('error','Nama produk wajib'); return; }
+    if(!category) { showToast('error','Kategori wajib'); return; }
+    if(priceRaw && !/^\d+$/.test(priceRaw)) { showToast('error','Harga harus angka (tanpa titik)'); return; }
+    if(!slot || isNaN(slot) || Number(slot) < 1 || Number(slot) > 8){ showToast('error','Rak harus 1..8'); return; }
+    if(img && !isValidHttpUrl(img)){ showToast('error','URL gambar tidak valid'); return; }
+    const p = {
+      id: document.getElementById('f-id').value.trim() || ('p' + Date.now()),
+      name,
+      price: priceRaw ? formatToRpString(priceRaw) : '-',
+      img: img || '',
+      category,
+      cabinet:'1',
+      slot: Number(slot)
+    };
+    const arr = loadProducts(); arr.push(p); saveProducts(arr);
+    closeOverlay(); renderAdminList(); renderProductsGrid(currentFilter, currentQuery);
+    showToast('success','Produk berhasil ditambahkan.');
+  });
+}
+
+/* Edit modal with labels */
+function openEditModal(id){
+  const arr = loadProducts();
+  const p = arr.find(x => x.id === id);
+  if(!p){ showToast('error','Produk tidak ditemukan'); return; }
+  const cats = siteConfig.categories.map(c=>`<option ${p.category===c?'selected':''} value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+  const plainPrice = (p.price||'').toString().replace(/[^0-9]/g,'');
+  const slotVal = p.slot || (typeof p.rack !== 'undefined' ? Number(p.rack)+1 : '');
+  const html = `
+    <button class="close-x" onclick="closeOverlay()">×</button>
+    <h3 style="color:var(--accent-weak);">Edit Produk</h3>
+    <div style="color:var(--muted);margin-bottom:8px;">Ubah detail produk. ID tidak disarankan diubah. Rak: 1..8</div>
+    <div class="form-row"><div style="min-width:120px;"><label class="field-label">Nama produk</label></div><input id="f-name" value="${escapeHtml(p.name)}" placeholder="Nama produk"></div>
+    <div class="form-row"><div style="min-width:120px;"><label class="field-label">Harga (angka)</label></div><input id="f-price" value="${escapeHtml(plainPrice)}" placeholder="Harga (angka saja)"><div style="font-size:12px;color:var(--muted);">Masukkan angka tanpa titik</div></div>
+    <div class="form-row"><div style="min-width:120px;"><label class="field-label">URL gambar</label></div><input id="f-img" value="${escapeHtml(p.img)}" placeholder="URL gambar"></div>
+    <div class="form-row"><div style="min-width:120px;"><label class="field-label">Kategori</label></div><select id="f-category">${cats}</select><input id="f-id" value="${escapeHtml(p.id)}" placeholder="ID produk (tidak disarankan ubah)"></div>
+    <div class="form-row"><div style="min-width:120px;"><label class="field-label">Lemari</label></div><input id="f-cabinet" value="1" disabled><div style="min-width:120px;"><label class="field-label">Rak (1..8)</label></div><input id="f-rak" value="${escapeHtml(slotVal)}" placeholder="Rak (1..8)"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn ghost" id="edit-cancel">Batal</button>
+      <button class="btn" id="edit-delete" style="background:${getComputedStyle(document.documentElement).getPropertyValue('--error')||'#ff6b6b'};color:#fff;border:none;">Hapus</button>
+      <button class="btn primary" id="edit-save">Simpan</button>
+    </div>
+  `;
+  showOverlay(html);
+  document.getElementById('edit-cancel').addEventListener('click', closeOverlay);
+  document.getElementById('edit-delete').addEventListener('click', ()=> {
+    if(confirm('Yakin hapus produk ini?')) {
+      let arr2 = loadProducts();
+      arr2 = arr2.filter(x => x.id !== p.id); saveProducts(arr2); closeOverlay(); renderAdminList(); renderProductsGrid(currentFilter, currentQuery); showToast('success','Produk dihapus.');
+    }
+  });
+  document.getElementById('edit-save').addEventListener('click', ()=> {
+    const name = document.getElementById('f-name').value.trim();
+    const priceRaw = document.getElementById('f-price').value.trim();
+    const img = document.getElementById('f-img').value.trim();
+    const category = document.getElementById('f-category').value;
+    const slot = document.getElementById('f-rak').value.trim();
+    if(!name) { showToast('error','Nama produk wajib'); return; }
+    if(!category) { showToast('error','Kategori wajib'); return; }
+    if(priceRaw && !/^\d+$/.test(priceRaw)) { showToast('error','Harga harus angka'); return; }
+    if(!slot || isNaN(slot) || Number(slot) < 1 || Number(slot) > 8){ showToast('error','Rak harus 1..8'); return; }
+    if(img && !isValidHttpUrl(img)){ showToast('error','URL gambar tidak valid'); return; }
+    const arr2 = loadProducts();
+    const i = arr2.findIndex(x => x.id === p.id);
+    if(i === -1){ showToast('error','Produk tidak ditemukan saat menyimpan'); return; }
+    arr2[i] = {
+      id: document.getElementById('f-id').value.trim() || p.id,
+      name,
+      price: priceRaw ? formatToRpString(priceRaw) : p.price,
+      img: img || p.img,
+      category,
+      cabinet: '1',
+      slot: Number(slot)
+    };
+    saveProducts(arr2); closeOverlay(); renderAdminList(); renderProductsGrid(currentFilter, currentQuery); showToast('success','Perubahan produk berhasil disimpan.');
+  });
+}
+
+/* render admin list */
+function renderAdminList(filter=''){
+  const all = loadProducts();
+  adminList.innerHTML = '';
+  const q = (filter||'').trim().toLowerCase();
+  const visible = all.filter(p => {
+    if(!q) return true;
+    return (p.name||'').toLowerCase().includes(q) || (p.category||'').toLowerCase().includes(q);
+  });
+  visible.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'admin-card';
+    card.innerHTML = `
+      <img src="${escapeHtml(p.img||'')}" alt="">
+      <h4 style="color:var(--accent-weak);">${escapeHtml(p.name)}</h4>
+      <p style="color:var(--muted);margin-bottom:8px;">${escapeHtml(p.price)} • Rak ${escapeHtml(String(productSlotNumber(p)))}</p>
+      <div style="display:flex;gap:6px;justify-content:center;">
+        <button class="small-btn btn" data-id="${escapeHtml(p.id)}" data-action="edit">Edit</button>
+        <button class="small-btn btn ghost" data-id="${escapeHtml(p.id)}" data-action="delete">Hapus</button>
+      </div>
+    `;
+    adminList.appendChild(card);
+  });
+
+  const placeholdersToAdd = Math.max(0, 12 - visible.length);
+  for(let i=0;i<placeholdersToAdd;i++){
+    const ph = document.createElement('div');
+    ph.className = 'admin-card';
+    ph.style.cssText = 'display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--accent);border-style:dashed;padding:20px;';
+    ph.innerHTML = `<div style="font-weight:800;">+ Tambah</div>`;
+    ph.addEventListener('click', ()=> openAddModal());
+    adminList.appendChild(ph);
+  }
+
+  adminList.querySelectorAll('[data-action]').forEach(btn=> {
+    btn.addEventListener('click', (ev)=>{
+      const id = ev.currentTarget.dataset.id;
+      const action = ev.currentTarget.dataset.action;
+      if(action === 'edit') openEditModal(id);
+      if(action === 'delete'){
+        if(confirm('Yakin hapus produk ini?')) {
+          let arr = loadProducts(); arr = arr.filter(x => x.id !== id); saveProducts(arr);
+          renderAdminList(adminSearch.value || ''); renderProductsGrid(currentFilter, currentQuery); showToast('success','Produk dihapus.');
+        }
+      }
+    });
+  });
+}
+
+/* Add product button */
+document.getElementById('btn-add-product').addEventListener('click', ()=> openAddModal());
+
+/* ========================= FILTERS & SMART LIVE SEARCH + VOICE ========================= */
+let currentFilter = 'all';
+let currentQuery = '';
+
+searchInput.addEventListener('input', (e)=>{
+  const v = e.target.value.trim();
+  currentQuery = v;
+  renderProductsGrid(currentFilter, currentQuery);
+  updateSlotHighlightsForCategory(currentFilter);
+  if(!v){ suggestionsEl.classList.remove('show'); return; }
+  const all = loadProducts();
+  const scored = all.map(p => ({p, score: Math.max(scoreMatch(p.name, v), scoreMatch(p.category, v))}));
+  scored.sort((a,b)=>b.score-a.score);
+  const top = scored.slice(0,6).filter(x=>x.score>0);
+  if(top.length){
+    suggestionsEl.innerHTML = top.map(x=>`<div class="suggest-item" data-id="${escapeHtml(x.p.id)}"><div style="width:44px;height:44px;border-radius:6px;overflow:hidden;background:#0b0c10"><img src="${escapeHtml(x.p.img||'')}" style="width:100%;height:100%;object-fit:cover;"></div><div><div style="font-weight:700;color:var(--accent-weak)">${escapeHtml(x.p.name)}</div><div style="font-size:12px;color:var(--muted)">${escapeHtml(x.p.price)}</div></div></div>`).join('');
+    suggestionsEl.classList.add('show');
+    Array.from(suggestionsEl.querySelectorAll('.suggest-item')).forEach(it=>it.addEventListener('click', ()=>{
+      const id = it.dataset.id;
+      const prod = loadProducts().find(pp => pp.id === id);
+      if(prod){ searchInput.value = prod.name; suggestionsEl.classList.remove('show'); renderProductsGrid(currentFilter, prod.name); setTimeout(()=> {
+        const prodNode = document.querySelector(`.product[data-id="${escapeHtml(prod.id)}"] .loc-btn`);
+        if(prodNode) prodNode.click();
+      }, 240); }
+    }));
+  } else { suggestionsEl.innerHTML = `<div style="padding:8px;color:var(--muted);font-size:13px;">Tidak ada saran</div>`; suggestionsEl.classList.add('show'); }
+});
+
+/* when clicking outside, hide suggestions */
+document.addEventListener('click', (ev)=>{ if(!document.getElementById('search').contains(ev.target) && !suggestionsEl.contains(ev.target)) suggestionsEl.classList.remove('show'); });
+
+/* voice recognition */
+voiceBtn.addEventListener('click', ()=>{
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecognition){ showToast('error','Pencarian suara tidak didukung di browser ini'); return; }
+  const rec = new SpeechRecognition();
+  rec.lang = 'id-ID'; rec.interimResults = false; rec.maxAlternatives = 1;
+  rec.start(); showToast('success','Mulai bicara. (biarkan sebentar, otomatis berhenti saat selesai)');
+  rec.onresult = (ev) => {
+    const t = ev.results[0][0].transcript;
+    searchInput.value = t; currentQuery = t; renderProductsGrid(currentFilter, t); showToast('success','Terdeteksi: ' + t);
+  };
+  rec.onerror = ()=> showToast('error','Pencarian suara gagal');
+});
+
+/* scoring helpers */
+function scoreMatch(a,b){ a=(a||'').toLowerCase(); b=(b||'').toLowerCase(); if(!b) return 0; if(a===b) return 100; if(a.includes(b) || b.includes(a)) return 70; return 0; }
+
+/* helper: register product search counts */
+function registerProductSearch(id){
+  try{
+    const counts = loadSearchCounts();
+    counts[id] = (counts[id]||0) + 1;
+    saveSearchCounts(counts);
+  }catch(e){}
+}
+
+/* ========================= CABINET VISUAL BUILD (top slots larger) ========================= */
+function buildCabinetsVisual(){
+  cabRowTop.innerHTML = ''; cabRowMid.innerHTML = ''; cabRowBot.innerHTML = '';
+
+  function createCabinetCard(num){
+    const card = document.createElement('div');
+    card.className = 'cabinet-card';
+    card.id = 'cabinet-' + num;
+    card.innerHTML = `
+      <div class="cabinet-title">Lemari ${num}</div>
+      <div class="cabinet-visual" data-cabinet="${num}">
+        <div class="shelf-row" data-level="top"></div>
+        <div class="shelf-row" data-level="mid"></div>
+        <div class="shelf-row" data-level="bot"></div>
+      </div>
+    `;
+    const vis = card.querySelector('.cabinet-visual');
+    const topRow = vis.querySelector('[data-level="top"]');
+
+    // create a single slot visual for this "lemari" (slot = num)
+    const s = document.createElement('div');
+    s.className = 'shelf-slot';
+    s.dataset.slot = num;
+    s.textContent = num;
+    s.title = 'Rak ' + num;
+
+    // default size for normal racks (3-racks rows)
+    let size = 48; // default px for middle & bottom rows
+    if(num === 1 || num === 2){
+      // top row has only 2 slots -> make each bigger (1.5x)
+      size = Math.round(48 * 1.5); // 72px
+      s.style.fontSize = '15px';
+      s.style.borderRadius = '10px';
+    } else {
+      s.style.fontSize = '13px';
+      s.style.borderRadius = '8px';
+    }
+
+    s.style.width = size + 'px';
+    s.style.height = size + 'px';
+    topRow.appendChild(s);
+    return card;
+  }
+
+  // Top row: 1 & 2
+  cabRowTop.appendChild(createCabinetCard(1));
+  cabRowTop.appendChild(createCabinetCard(2));
+  // Middle: 3,4,5
+  cabRowMid.appendChild(createCabinetCard(3));
+  cabRowMid.appendChild(createCabinetCard(4));
+  cabRowMid.appendChild(createCabinetCard(5));
+  // Bottom: 6,7,8
+  cabRowBot.appendChild(createCabinetCard(6));
+  cabRowBot.appendChild(createCabinetCard(7));
+  cabRowBot.appendChild(createCabinetCard(8));
+
+  attachShelfSlotListeners();
+}
+buildCabinetsVisual();
+
+/* refresh highlights */
+function refreshCabinetHighlights(){
+  attachShelfSlotListeners();
+}
+refreshCabinetHighlights();
+
+/* ========================= SETTINGS (3-panel modal) ========================= */
+document.getElementById('btn-settings').addEventListener('click', ()=> openSettingsModal());
+
+function openSettingsModal(){
+  const html = `
+    <button class="close-x" onclick="closeOverlay()">×</button>
+    <h3 style="color:var(--accent-weak);margin-bottom:6px;">Settings Situs</h3>
+    <div style="color:var(--muted);margin-bottom:10px;">Pilih panel: Site Config / Welcome Config / Kategori. Klik simpan untuk menyimpan perubahan.</div>
+    <div class="settings-panels">
+      <div class="settings-panel" id="panel-site">
+        <div class="panel-title">Site Config</div>
+        <label class="field-label">Judul Situs</label><input id="set-title" value="${escapeHtml(siteConfig.siteTitle)}">
+        <label class="field-label">Logo Top (URL)</label><input id="set-logo-top" value="${escapeHtml(siteConfig.logoTop)}">
+        <label class="field-label">Logo Bottom (URL)</label><input id="set-logo-bottom" value="${escapeHtml(siteConfig.logoBottom)}">
+        <label class="field-label">Footer Title</label><input id="set-footer-title" value="${escapeHtml(siteConfig.footerTitle)}">
+        <label class="field-label">Footer Desc</label><input id="set-footer-desc" value="${escapeHtml(siteConfig.footerDesc)}">
+        <label class="field-label">API Key Kritik & Saran (CallMeBot)</label><input id="set-feedback-apikey" value="${escapeHtml(siteSettings.callmebot_apikey)}">
+      </div>
+      <div class="settings-panel" id="panel-welcome">
+        <div class="panel-title">Welcome Config</div>
+        <label class="field-label">Welcome Main</label><input id="set-wmain" value="${escapeHtml(siteSettings.welcome_main)}">
+        <label class="field-label">Welcome Sub</label><input id="set-wsub" value="${escapeHtml(siteSettings.welcome_sub)}">
+        <label class="field-label">Welcome Desc</label><textarea id="set-wdesc" style="min-height:80px;">${escapeHtml(siteSettings.welcome_desc)}</textarea>
+      </div>
+      <div class="settings-panel" id="panel-cats">
+        <div class="panel-title">Kategori</div>
+        <label class="field-label">Daftar Kategori (pisah dengan koma)</label>
+        <textarea id="set-cats" style="min-height:160px;">${escapeHtml(siteConfig.categories.join(', '))}</textarea>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
+      <button class="btn ghost" id="set-cancel">Batal</button>
+      <button class="btn primary" id="set-save">Simpan</button>
+    </div>
+  `;
+  showOverlay(html);
+
+  document.getElementById('set-cancel').addEventListener('click', closeOverlay);
+  document.getElementById('set-save').addEventListener('click', ()=>{
+    const newConfig = Object.assign({}, siteConfig);
+    newConfig.siteTitle = document.getElementById('set-title').value.trim();
+    newConfig.logoTop = document.getElementById('set-logo-top').value.trim();
+    newConfig.logoBottom = document.getElementById('set-logo-bottom').value.trim();
+    newConfig.footerTitle = document.getElementById('set-footer-title').value.trim();
+    newConfig.footerDesc = document.getElementById('set-footer-desc').value.trim();
+    const catsRaw = document.getElementById('set-cats').value.trim();
+    newConfig.categories = catsRaw ? catsRaw.split(',').map(s=>s.trim()).filter(Boolean) : DEFAULT_CONFIG.categories;
+    saveConfig(newConfig);
+
+    const newS = {
+      callmebot_apikey: (document.getElementById('set-feedback-apikey') ? document.getElementById('set-feedback-apikey').value.trim() : siteSettings.callmebot_apikey) || '',
+      welcome_main: document.getElementById('set-wmain').value.trim(),
+      welcome_sub: document.getElementById('set-wsub').value.trim(),
+      welcome_desc: document.getElementById('set-wdesc').value.trim()
+    };
+    saveSettings(newS);
+
+    // update UI on the fly
+    Object.assign(siteConfig, newConfig);
+    Object.assign(siteSettings, newS);
+    applySiteConfigToDOM();
+    renderFilterNav();
+    closeOverlay();
+    showToast('success','Pengaturan tersimpan.');
+  });
+}
+
+function applySiteConfigToDOM(){
+  document.getElementById('site-title').textContent = siteConfig.siteTitle;
+  document.getElementById('footer-title').textContent = siteConfig.footerTitle;
+  document.getElementById('footer-desc').textContent = siteConfig.footerDesc;
+  document.getElementById('logo-top').src = siteConfig.logoTop;
+  document.getElementById('logo-bottom').src = siteConfig.logoBottom;
+  document.getElementById('dev-name').textContent = siteConfig.developer.name;
+  document.getElementById('dev-email').href = 'mailto:' + siteConfig.developer.email;
+  document.getElementById('dev-email').textContent = siteConfig.developer.email;
+  document.getElementById('dev-wa').href = 'https://wa.me/' + siteConfig.developer.wa;
+  document.getElementById('dev-wa').textContent = siteConfig.developer.wa;
+}
+
+/* ========================= FEEDBACK / KRITIK & SARAN ========================= */
+if(document.getElementById('btn-feedback')){
+document.getElementById('btn-feedback').addEventListener('click', showFeedbackModal);
+}
+function showFeedbackModal(){
+  const html = `
+    <button class="close-x" onclick="closeOverlay()">×</button>
+    <h3 style="color:var(--accent-weak);">Kritik & Saran</h3>
+    <div style="color:var(--muted);margin-bottom:10px;">Sampaikan kritik dan/atau saran Anda. Isi salah satu saja juga akan dikirim.</div>
+    <div class="form-row"><input id="fb-name" placeholder="Nama (opsional)"></div>
+    <div class="form-row"><input id="fb-kritik" placeholder="Kritik (boleh kosong)"></div>
+    <div class="form-row"><textarea id="fb-saran" placeholder="Saran (boleh kosong)" style="min-height:100px;"></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
+      <button class="btn ghost" onclick="closeOverlay()">Batal</button>
+      <button class="btn primary" id="fb-send">Kirim</button>
+    </div>
+  `;
+  showOverlay(html);
+  document.getElementById('fb-send').addEventListener('click', async ()=>{
+    const name = document.getElementById('fb-name').value.trim();
+    const kritik = document.getElementById('fb-kritik').value.trim();
+    const saran = document.getElementById('fb-saran').value.trim();
+    if(!kritik && !saran){ showToast('error','Isi kritik atau saran minimal satu.'); return; }
+    const settingsLocal = JSON.parse(localStorage.getItem(LS_SETTINGS) || JSON.stringify(DEFAULT_SETTINGS));
+    const apikey = settingsLocal.callmebot_apikey || '1234';
+    const msgParts = [];
+    if(name) msgParts.push('Nama: ' + name);
+    if(kritik) msgParts.push('Kritik: ' + kritik);
+    if(saran) msgParts.push('Saran: ' + saran);
+    const message = encodeURIComponent(msgParts.join('\n'));
+    const url = 'https://api.callmebot.com/whatsapp.php?phone=&text=' + message + '&apikey=' + encodeURIComponent(apikey);
+    try{
+      await fetch(url, { method: 'GET', mode:'no-cors' });
+      closeOverlay();
+      showToast('success','Kritik & Saran terkirim. Terima kasih!');
+    }catch(e){
+      closeOverlay();
+      showToast('error','Gagal mengirim kritik & saran.');
+    }
+  });
+}
+
+/* ========================= ADMIN FAVORITES (manage favorites from admin) ========================= */
+if(document.getElementById('btn-admin-favs')){
+document.getElementById('btn-admin-favs').addEventListener('click', showAdminFavsModal);
+}
+function showAdminFavsModal(){
+  const products = loadProducts();
+  const favs = loadFavs();
+  let html = '<button class="close-x" onclick="closeOverlay()">×</button><h3 style="color:var(--accent-weak);">Kelola Favorit (Admin)</h3><div style="color:var(--muted);margin-bottom:10px;">Centang produk yang ingin dijadikan favorit agar muncul di halaman Favorit pengguna.</div><div id="admin-fav-list" style="max-height:360px;overflow:auto;padding:8px;">';
+  products.forEach(p=>{
+    const isC = favs[p.id] ? 'checked' : '';
+    html += `<label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><input type="checkbox" data-id="${p.id}" ${isC}> ${escapeHtml(p.name)}</label>`;
+  });
+  html += '</div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;"><button class="btn ghost" onclick="closeOverlay()">Batal</button><button class="btn primary" id="admin-fav-save">Simpan</button></div>';
+  showOverlay(html);
+  document.getElementById('admin-fav-save').addEventListener('click', ()=>{
+    const checks = Array.from(document.querySelectorAll('#admin-fav-list input[type="checkbox"]'));
+    const f = {};
+    checks.forEach(c=>{ if(c.checked) f[c.dataset.id]=true; });
+    saveFavs(f);
+    closeOverlay();
+    showToast('success','Favorit admin disimpan.');
+    renderFavoritesListIfOpen();
+  });
+}
+
+/* ========================= UTILITY / HOME / THEME TOGGLER ========================= */
+function goHome(){ 
+  productsPage.style.display='block'; 
+  adminPage.style.display='none'; 
+  locationPage.style.display='none'; 
+  favoritesPage.style.display='none';
+  // show filters & feedback again
+  if(filterNav) filterNav.style.display = '';
+  if(feedbackWrap) feedbackWrap.style.display = '';
+}
+document.getElementById('landing-start').addEventListener('click', ()=> { landing.classList.add('hide'); setTimeout(()=> landing.style.display='none',600); goHome(); });
+document.querySelector('#modeToggle').addEventListener('click', ()=> {
+  if(bodyEl.classList.contains('light')){ bodyEl.classList.remove('light'); localStorage.setItem(THEME_KEY,'dark'); showToast('success','Mode gelap'); }
+  else { bodyEl.classList.add('light'); localStorage.setItem(THEME_KEY,'light'); showToast('success','Mode terang'); }
+});
+
+/* ========================= HELPERS: render cabinet active states on load & attach listeners ========================= */
+function refreshCabinetHighlights(){
+  attachShelfSlotListeners();
+}
+refreshCabinetHighlights();
+
+/* ========================= FINAL: load initial UI & hide loader ========================= */
+setTimeout(()=>{ loader.style.opacity=0; setTimeout(()=> loader.style.display='none',600); }, 600);
+
+/* ========================= Ensure products show on initial load (fix for 'Semua' empty at start) ========================= */
+renderProductsGrid('all',''); // <<-- important: render products immediately
+updateSlotHighlightsForCategory = function(cat){ /* lightweight: dim/highlight slots based on category presence (optional) */
+  Array.from(document.querySelectorAll('.shelf-slot')).forEach(s=> s.classList.remove('dim','active'));
+};
+
+/* ========================= UTILITY: render favorites list if open (used after fav change) ========================= */
+function renderFavoritesListIfOpen(){
+  if(favoritesPage.style.display === 'block'){
+    const favs = loadFavs();
+    const arr = loadProducts().filter(p => favs[p.id]);
+    favList.innerHTML = '';
+    arr.forEach(p=>{
+      const d = document.createElement('div'); d.className='product';
+      d.innerHTML = `<img src="${escapeHtml(p.img||'')}" style="height:84px;object-fit:cover;border-radius:8px;"><h3 style="color:var(--accent-weak)">${escapeHtml(p.name)}</h3><p style="color:var(--muted)">${escapeHtml(p.price)}</p>`;
+      favList.appendChild(d);
+    });
+  }
+}
+
+/* ========================= SMALL HELPERS (no external libs) ========================= */
+document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeOverlay(); });
+overlay.addEventListener('click', (ev)=>{ if(ev.target === overlay) closeOverlay(); });
+adminPage.style.display='none';
+favoritesPage.style.display='none';
+locationPage.style.display='none';
+window.showOverlay = showOverlay;
+window.closeOverlay = closeOverlay;
+function isNumberString(v){ return /^\d+$/.test(String(v)); }
+
+/* ========================= OTHER HELPERS (formatting) ========================= */
+function formatToRpString(n){
+  const num = Number(String(n).replace(/[^0-9]/g,'')) || 0;
+  return 'Rp' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+function escapeHtml(s){ if(s===undefined || s===null) return ''; return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function isValidHttpUrl(s){ try{ const u = new URL(s); return u.protocol==='http:'||u.protocol==='https:';}catch(e){return false;} }
+
+/* ========================= END OF SCRIPT ========================= */
+</script>
+
+<!-- ===================== BUZZER & LED CONTROL (FIREBASE) ===================== -->
+<script>
+/*
+  FIREBASE-BASED CONTROL
+  - menulis langsung ke /racks/rack{N}/LED atau /BUZZER
+  - ESP32 harus membaca dari Firebase (atau kamu bisa sinkronkan DB -> status.txt)
+*/
+
+/* helper: pastikan db tersedia */
+function getDB(){
+  if(typeof window.db !== 'undefined') return window.db;
+  console.error('Firebase DB tidak ditemukan. Pastikan modul Firebase di awal meng-assign window.db = getDatabase(app);');
+  return null;
+}
+
+/* helper menulis nilai ON/OFF ke Firebase */
+function writeRackValue(rack, key, value){
+  const db = getDB();
+  if(!db) return Promise.reject('no-db');
+  // path: /racks/rack{N}/{KEY}
+  const path = `racks/rack${rack}/${key}`;
+  return (window.firebaseSetRef = (typeof window.firebaseSetRef === 'undefined') ? null : window.firebaseSetRef, 
+    // use getDatabase API via window.db and set() 
+    // we call set via dynamic import reference to avoid module cross-scope issues
+    new Promise((resolve,reject)=>{
+      try{
+        // create ref and set
+        const r = window.db && window.db ? (window.dbRef = (typeof window.dbRef === 'undefined' ? null : window.dbRef)) : null;
+        // using databse functions loaded earlier: the page already imported set() & ref() in the module tag
+        if(typeof ref === 'function' && typeof set === 'function'){
+          set(ref(window.db, path), value).then(()=>resolve(true)).catch(reject);
+        } else {
+          // fallback: attempt to access firebase namespace (older SDK), else reject
+          if(window.firebase && window.firebase.database){
+            window.firebase.database().ref(path).set(value).then(()=>resolve(true)).catch(reject);
+          } else {
+            reject('no-firebase-api');
+          }
+        }
+      }catch(err){
+        reject(err);
+      }
+    })
+  );
+}
+
+/* convenience wrappers */
+function setLED(rack, state){ return writeRackValue(rack, 'LED', state ? 'ON' : 'OFF'); }
+function setBUZZER(rack, state){ return writeRackValue(rack, 'BUZZER', state ? 'ON' : 'OFF'); }
+
+/* UI state */
+let CURRENT_RACK = null;
+let LED_STATE = false;
+let BUZZER_STATE = false;
+
+/* When user clicks Cari Lokasi on product card:
+   - highlight location page
+   - set CURRENT_RACK
+   - set LED=ON, BUZZER default OFF
+*/
+document.addEventListener('click', (e)=>{
+  const t = e.target;
+  if(t.classList && t.classList.contains('loc-btn')){
+    const card = t.closest('.product');
+    if(!card) return;
+    const rack = Number(card.dataset.slot || 1);
+    CURRENT_RACK = rack;
+    // write LED ON and BUZZER OFF
+    setLED(rack, true).then(()=> {
+      LED_STATE = true;
+      console.log('LED ON rack', rack);
+    }).catch((err)=> console.error('setLED err', err));
+    setBUZZER(rack, false).then(()=> {
+      BUZZER_STATE = false;
+      console.log('BUZZER OFF rack', rack);
+    }).catch(()=>{});
+    // show location page (reuse existing function)
+    if(typeof showPage === 'function' && document.getElementById('location-page')) {
+      showPage(document.getElementById('location-page'));
+    }
+    // store selected rack for buzzer controls in the location page
+    const locPage = document.getElementById('location-page');
+    if(locPage) {
+      locPage.dataset.currentRack = rack;
+      // update UI buzzer button if exists
+      updateLocationBuzzerUI();
+      // highlight visual
+      if(typeof highlightCabinetSlot === 'function') highlightCabinetSlot(rack);
+    }
+  }
+});
+
+/* Button Buzzer ON in product card (class btn-buzzer-on) */
+document.addEventListener('click', (e)=>{
+  const t = e.target;
+  if(t.classList && t.classList.contains('btn-buzzer-on')){
+    const card = t.closest('.product');
+    if(!card) return;
+    const rack = Number(card.dataset.slot || 1);
+    // toggle buzzer ON
+    setBUZZER(rack, true).then(()=> {
+      BUZZER_STATE = true;
+      CURRENT_RACK = rack;
+      updateLocationBuzzerUI();
+      console.log('Buzzer ON rack', rack);
+    }).catch(err=> console.error(err));
+  }
+});
+
+/* Button Buzzer OFF in product card (class btn-buzzer-off) */
+document.addEventListener('click', (e)=>{
+  const t = e.target;
+  if(t.classList && t.classList.contains('btn-buzzer-off')){
+    const card = t.closest('.product');
+    if(!card) return;
+    const rack = Number(card.dataset.slot || 1);
+    setBUZZER(rack, false).then(()=> {
+      if(CURRENT_RACK === rack) BUZZER_STATE = false;
+      updateLocationBuzzerUI();
+      console.log('Buzzer OFF rack', rack);
+    }).catch(err=> console.error(err));
+  }
+});
+
+/* Location page: main buzzer toggle button (id buzzer-toggle) */
+const buzzerToggleBtn = document.getElementById('buzzer-toggle');
+if(buzzerToggleBtn){
+  buzzerToggleBtn.addEventListener('click', ()=>{
+    const locPage = document.getElementById('location-page');
+    const rack = Number((locPage && locPage.dataset.currentRack) || CURRENT_RACK || 0);
+    if(!rack) { alert('Pilih produk / rak dulu'); return; }
+    // toggle
+    const newState = !BUZZER_STATE;
+    setBUZZER(rack, newState).then(()=> {
+      BUZZER_STATE = newState;
+      updateLocationBuzzerUI();
+      console.log('Buzzer toggled', rack, newState);
+    }).catch(err=> console.error(err));
+  });
+}
+
+/* Location page: separate "Matikan Buzzer" button (id buzzer-off) - ensure it sets both OFF */
+const buzzerOffBtn = document.getElementById('buzzer-off');
+if(buzzerOffBtn){
+  buzzerOffBtn.addEventListener('click', ()=>{
+    const locPage = document.getElementById('location-page');
+    const rack = Number((locPage && locPage.dataset.currentRack) || CURRENT_RACK || 0);
+    if(!rack) return;
+    Promise.all([ setBUZZER(rack, false), setLED(rack, false) ]).then(()=>{
+      BUZZER_STATE = false;
+      LED_STATE = false;
+      updateLocationBuzzerUI();
+    }).catch(err=> console.error(err));
+  });
+}
+
+/* Helper update UI on location page */
+function updateLocationBuzzerUI(){
+  const locPage = document.getElementById('location-page');
+  const rack = Number((locPage && locPage.dataset.currentRack) || CURRENT_RACK || 0);
+  // update buzzer toggle text
+  const btn = document.getElementById('buzzer-toggle');
+  if(btn) btn.textContent = (BUZZER_STATE ? 'Matikan Buzzer' : 'Nyalakan Buzzer');
+  // highlight cabinet slot visual too (existing function)
+  if(rack) highlightCabinetSlot(rack);
+}
+
+/* Turn everything off helper (used when leaving page) */
+function turnAllOffFirebase(){
+  // iterate known racks turned on by this client (optional)
+  for(let k in rackState){
+    const num = Number(k);
+    if(rackState[k].led) setLED(num,false).catch(()=>{});
+    if(rackState[k].buzzer) setBUZZER(num,false).catch(()=>{});
+  }
+}
+
+/* Optional: listen to DB changes to update UI realtime (if you want) */
+function attachRealtimeListeners(){
+  const db = getDB();
+  if(!db) return;
+  if(typeof onValue !== 'function' || typeof ref !== 'function') return;
+  // listen entire racks node
+  try{
+    onValue(ref(db, 'racks'), (snap)=>{
+      const data = snap.val();
+      // example: update shelf-slot visuals + local rackState mirror
+      // adapt to your UI: loop through rack slots 1..8
+      for(let i=1;i<=8;i++){
+        const node = data && data['rack'+i];
+        if(node){
+          const led = node.LED === 'ON';
+          const buz = node.BUZZER === 'ON';
+          // update local mirror
+          rackState[i] = rackState[i] || {};
+          rackState[i].led = led;
+          rackState[i].buzzer = buz;
+          // update shelf-slot visual classes
+          const slotEl = document.querySelector(`.shelf-slot[data-slot="${i}"]`);
+          if(slotEl){
+            if(led) slotEl.classList.add('active');
+            else slotEl.classList.remove('active');
+          }
+          // if location page currently showing this rack, update UI
+          const locPage = document.getElementById('location-page');
+          if(locPage && Number(locPage.dataset.currentRack) === i){
+            LED_STATE = led;
+            BUZZER_STATE = buz;
+            updateLocationBuzzerUI();
+          }
+        }
+      }
+    });
+  }catch(e){ console.warn('realtime attach failed', e); }
+}
+
+// start listeners (safe if functions not available)
+setTimeout(()=> { try{ attachRealtimeListeners(); }catch(e){} }, 600);
+</script>
+<!-- ===================== END FIREBASE CONTROL ===================== -->
+
+
+<script>
+async function sendRack(rack){
+  try{
+    const ledRes = await fetch(`update.php?rack=${rack}&led=ON&_=${Date.now()}`,{cache:'no-store'});
+    const ledTxt = await ledRes.text();
+    if(!ledTxt.includes("OK")) throw "LED_FAIL";
+
+    const buzRes = await fetch(`update.php?rack=${rack}&buzzer=ON&_=${Date.now()}`,{cache:'no-store'});
+    const buzTxt = await buzRes.text();
+    if(!buzTxt.includes("OK")) throw "BUZZ_FAIL";
+
+    showNotif(true, "Perintah LED & Buzzer BERHASIL (Rak "+rack+")");
+  }catch(e){
+    showNotif(false, "Gagal mengirim perintah Rak "+rack);
+  }
+}
+
+function showNotif(ok,msg){
+  let box=document.getElementById("notifBox");
+  if(!box){
+    box=document.createElement("div");
+    box.id="notifBox";
+    box.style.cssText="position:fixed;top:14px;right:14px;z-index:9999;padding:12px 16px;border-radius:10px;font-size:14px";
+    document.body.appendChild(box);
+  }
+  box.style.background = ok ? "#1f8f4e" : "#b52e2e";
+  box.style.color="#fff";
+  box.innerText=msg;
+}
+</script>
+
+<style>
+@media(max-width:768px){
+  body{overflow-x:hidden}
+  .rack,.rak,.card{width:100%!important;max-width:100%!important}
+}
+</style>
+
+</body>
+</html>
+<!-- END OF index2_edited.html -->

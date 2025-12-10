@@ -229,51 +229,6 @@ button {
 </head>
 <body>
 
-<!-- wajib sebelum script utama! -->
-<script type="module">
-  import { initializeApp } 
-    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-
-  import { getDatabase, ref, set, onValue }
-    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyDepmxcDloIdVSMrs0LupQW5fMa56faTlA",
-    authDomain: "smartrackfinder2025.firebaseapp.com",
-    databaseURL: "https://smartrackfinder2025-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "smartrackfinder2025",
-    storageBucket: "smartrackfinder2025.firebasestorage.app",
-    messagingSenderId: "624405160078",
-    appId: "1:624405160078:web:3ffebe505fa650397ee9df"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  // ==========================================
-  // 🔥 FUNGSI FIREBASE (WAJIB DI DALAM MODULE)
-  // ==========================================
-
-  // LED SAAT CARI LOKASI
-  window.cariLokasi = function(productId, rak){
-    set(ref(db, "racks/rack" + rak + "/LED"), "ON");
-    console.log("LED rak", rak, "MENYALA");
-  };
-
-  // BUZZER ON
-  window.buzzerOn = function(productId, rak){
-    set(ref(db, "racks/rack" + rak + "/BUZZER"), "ON");
-    console.log("BUZZER rak", rak, "MENYALA");
-  };
-
-  // BUZZER OFF
-  window.buzzerOff = function(productId, rak){
-    set(ref(db, "racks/rack" + rak + "/BUZZER"), "OFF");
-    console.log("BUZZER rak", rak, "MATI");
-  };
-
-</script>
-
 <!-- LOADER -->
 <div id="loader"><div class="spinner"></div></div>
 
@@ -607,103 +562,38 @@ function renderProductsGrid(filterCategory='all', q='') {
 
   list.sort((a,b)=> (a.name||'').localeCompare(b.name||''));
 
-const favs = loadFavs();
+  const favs = loadFavs();
+  list.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'product';
+    div.dataset.id = p.id;
+    div.dataset.category = p.category || 'Lainnya';
+    div.dataset.name = p.name || '';
+    div.dataset.price = p.price || '-';
+    div.dataset.img = p.img || '';
+    const slot = productSlotNumber(p);
+    div.dataset.slot = slot;
+    const imgHtml = p.img ? `<img src="${escapeHtml(p.img)}" alt="">` : `<div style="padding:18px;color:var(--accent);">No Image</div>`;
+    const favActive = favs[p.id] ? 'active' : '';
+    div.innerHTML = `
+      <button class="fav-btn ${favActive}" title="Tambah ke favorit">★</button>
+      ${imgHtml}
+      <div>
+        <h3>${escapeHtml(p.name)}</h3>
+        <p>${escapeHtml(p.price)}</p>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">
+        <button class="loc-btn btn primary">Cari Lokasi</button>
+        <button class="btn ghost btn-info" data-id="${escapeHtml(p.id)}">Info</button>
+      </div>
+    `;
+    productsGrid.appendChild(div);
+  });
 
-list.forEach(p => {
-  const div = document.createElement('div');
-  div.className = 'product';
-
-  div.dataset.id = p.id;
-  div.dataset.category = p.category || 'Lainnya';
-  div.dataset.name = p.name || '';
-  div.dataset.price = p.price || '-';
-  div.dataset.img = p.img || '';
-
-  // Slot = rak
-  const slot = productSlotNumber(p);
-  div.dataset.slot = slot;
-
-  const imgHtml = p.img 
-    ? `<img src="${escapeHtml(p.img)}" alt="">` 
-    : `<div style="padding:18px;color:var(--accent);">No Image</div>`;
-
-  const favActive = favs[p.id] ? 'active' : '';
-
-  // ============================
-  // CARD PRODUK + FIREBASE BUTTON
-  // ============================
-  div.innerHTML = `
-    <button class="fav-btn ${favActive}" title="Tambah ke favorit">★</button>
-    ${imgHtml}
-    <div>
-      <h3>${escapeHtml(p.name)}</h3>
-      <p>${escapeHtml(p.price)}</p>
-    </div>
-
-    <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">
-  <button class="loc-btn btn primary" data-slot="${slot}">
-    Cari Lokasi
-  </button>
-
-  <button class="btn ghost btn-buzzer-on" data-slot="${slot}">
-    Buzzer ON
-  </button>
-
-  <button class="btn ghost btn-buzzer-off" data-slot="${slot}">
-    Buzzer OFF
-  </button>
-
-  <button class="btn ghost btn-info" data-id="${escapeHtml(p.id)}">
-    Info
-  </button>
-</div>
-
-    <!-- TOMBOL BUZZER FIREBASE -->
-    <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">
-      <button class="btn success" onclick="buzzerOn('${p.id}', ${slot})">Buzzer ON</button>
-      <button class="btn danger" onclick="buzzerOff('${p.id}', ${slot})">Buzzer OFF</button>
-    </div>
-  `;
-
-productsGrid.appendChild(div);
-});
-
-attachLocButtons();
-attachFavButtons();
-attachInfoButtons();
-
-// =======================
-// ⚡ TOMBOL CARI LOKASI
-// =======================
-document.querySelectorAll('.loc-btn').forEach(btn=>{
-  btn.onclick = () => {
-    const slot = btn.dataset.slot;
-    cariLokasi(null, slot); // panggil firebase
-    showNotif("LED Rak " + slot + " MENYALA", true);
-  };
-});
-
-// =======================
-// ⚡ TOMBOL BUZZER ON
-// =======================
-document.querySelectorAll('.btn-buzzer-on').forEach(btn=>{
-  btn.onclick = () => {
-    const slot = btn.dataset.slot;
-    buzzerOn(null, slot);
-    showNotif("BUZZER Rak " + slot + " MENYALA", true);
-  };
-});
-
-// =======================
-// ⚡ TOMBOL BUZZER OFF
-// =======================
-document.querySelectorAll('.btn-buzzer-off').forEach(btn=>{
-  btn.onclick = () => {
-    const slot = btn.dataset.slot;
-    buzzerOff(null, slot);
-    showNotif("BUZZER Rak " + slot + " MATI", false);
-  };
-});
+  attachLocButtons();
+  attachFavButtons();
+  attachInfoButtons();
+}
 
 /* helper: product logical slot number (1..8) */
 function productSlotNumber(p){
